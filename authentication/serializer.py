@@ -4,6 +4,7 @@ from django.contrib import auth
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
 import django.contrib.auth.password_validation as validators
+from django.utils.translation import gettext_lazy as _
 
 class RegisrerSerializer(serializers.ModelSerializer):
     password=serializers.CharField(max_length=50, min_length=6, write_only=True)
@@ -13,20 +14,11 @@ class RegisrerSerializer(serializers.ModelSerializer):
         model =User
         fields = ['email', 'password', 'username', "roler"]
 
-    # def validate_roler(self, obj):
-
-
     def validate(self, attrs):
         email = attrs.get('email','')
-        # roler=attrs.get('roler')
-        # # if  or roler='roler2' or roler='roler3' or roler='roler4' or roler='roler4':
-        # roler = 'roler1'
-        # if not roler=='roler1':
-        #     raise serializers.ValidationError('sss')
-
         username = attrs.get('username','')
-        # if not username.isalnum():
-        #     raise serializers.ValidationError('username phai co so')
+        if not username.isalnum():
+            raise serializers.ValidationError('username includes both letters and numbers')
         return attrs
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
@@ -44,7 +36,6 @@ class LoginSerializer(serializers.Serializer):
     def get_roler(self, obj):
         user = User.objects.get(email=obj['email'])
         role = user.roler
-
         return role
 
     def get_tokens(self, obj):
@@ -93,9 +84,9 @@ class LogoutSerializer(serializers.ModelSerializer):
 
     refresh = serializers.CharField()
 
-    # default_error_message = {
-    #     'bad_token': ('Token is expired or invalid')
-    # }
+    default_error_messages = {
+        'invalid': _('Bad Token')
+    }
 
     def validate(self, attrs):
         self.token = attrs['refresh']
@@ -105,8 +96,8 @@ class LogoutSerializer(serializers.ModelSerializer):
 
         try:
             RefreshToken(self.token).blacklist()
-        # except TokenError:
-        #     self.fail('bad_token')
+        except TokenError:
+            self.fail('invalid')
         except :
             return "Token is expired or invalid"
 
@@ -119,11 +110,16 @@ class LogoutSerializer(serializers.ModelSerializer):
 class ChangePasswordSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)
     new_password = serializers.CharField(required=True)
+    confirm_password = serializers.CharField(required=True)
 
     def validate(self, data):
         if data["old_password"] == data["new_password"]:
             raise serializers.ValidationError(
                 _("New password must be different from old password")
+            )
+        if data["confirm_password"] != data["new_password"]:
+            raise serializers.ValidationError(
+                _("The new password must be the same as the confirmation password")
             )
 
         try:
@@ -135,6 +131,5 @@ class ChangePasswordSerializer(serializers.Serializer):
 
 
 class GetUserReadOnlySerializer(serializers.Serializer):
-    id = serializers.UUIDField(read_only=True)
     email = serializers.CharField(read_only=True)
     fullname = serializers.CharField(read_only=True)

@@ -32,6 +32,8 @@ class Roler1_5(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if request.user.is_roler1 and request.method == "PUT":
             return True
+        if request.user.is_roler1 and request.method == "DELETE":
+            return True
 
         if request.user.is_roler1 and request.method == "POST":
             return True

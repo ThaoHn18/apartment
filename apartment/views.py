@@ -4,15 +4,13 @@ from django.shortcuts import render
 from rest_framework import status, viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
-from rest_framework.response import Response
 from .models import Apartment
 from .serializers import ApartmentSerializer, CreateApartmentSerializer, UpdateApartmentSerializer
 from django.db.models import Q
 from .pagination import CustomNumberPagination
 #Them
 from django_filters.rest_framework import DjangoFilterBackend
-# from from rest_framework.generics import ListAPIView
-# import django_filters.rest_framewor
+
 from rest_framework import generics
 from rest_framework import filters
 from rest_framework import permissions
@@ -27,18 +25,6 @@ class ApartmentViewSet(viewsets.ModelViewSet):
     serializer_class = ApartmentSerializer
     pagination_class = CustomNumberPagination
     permission_classes = [permissions.IsAuthenticated, Roler1_5]
-    permission_classes_by_action = {
-        'list': [Roler1_5],
-    }
-
-    def get_permissions(self):
-        try:
-            # return permission_classes depending on `action`
-            return [permission() for permission in self.permission_classes_by_action[self.action]]
-        except KeyError:
-            # action is not set return default permission_classes
-            return [permission() for permission in self.permission_classes]
-
 
 
 class ApartmentView(generics.ListAPIView, APIView, CustomNumberPagination):
@@ -49,50 +35,45 @@ class ApartmentView(generics.ListAPIView, APIView, CustomNumberPagination):
     serializer_action_classes = {
         "post": ApartmentSerializer,
         "list": ApartmentSerializer,
-        "put": ApartmentSerializer
+        "put": UpdateApartmentSerializer,
     }
     permission_classes = [permissions.IsAuthenticated , Roler1_5]
 
     filter_backends = [DjangoFilterBackend , filters.OrderingFilter, filters.SearchFilter]
-    # filterset_fields = ['manage_id', 'id', 'customer_name']
     search_fields = ['manage_id', 'apartment_add', 'customer_name']
     ordering_fields = ['manage_id', 'apartment_add', 'id']
     filter_fields = ('manage_id', 'customer_name', 'apartment_add')
 
     def get(self, request, id=None, *args, **kwargs):
+        try:
+            if id:
+                queryset = Apartment.objects.filter(id=id)
+                self.check_object_permissions(request, request.user.is_roler1)
+                serializer = ApartmentSerializer(queryset, many=True)
+                return sucsess(data=serializer.data)
 
-        if id:
-            queryset = Apartment.objects.filter(id=id)
-            self.check_object_permissions(request, request.user.is_roler1)
-            serializer = ApartmentSerializer(queryset, many=True)
-            return Response({
-                    "result": serializer.data,
-                    "message": True
-                }, status=status.HTTP_200_OK)
+            queryset = self.filter_queryset(self.get_queryset())
+            page = self.paginate_queryset(queryset)
+            if page is not None:
+                serializer = self.get_serializer(page, many=True)
+                return self.get_paginated_response({
+                        "data": serializer.data,
+                        "success": True
+                    })
 
-        queryset = self.filter_queryset(self.get_queryset())
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response({
-                    "result": serializer.data,
-                    "success": True
-                })
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response({
-                    "result": serializer.data,
-                    "message": True
-                }, status=status.HTTP_200_OK)
-
+            serializer = self.get_serializer(queryset, many=True)
+            return sucsess(data=serializer.data)
+        except:
+            return error(data=serializer.errors)
 
     def post(self, request):
+
         serializer = self.serializer_action_classes.get('post')(data=request.data)
         user_id = request.user.id
         user = User.objects.get(id=user_id)
         self.check_object_permissions(request, user_id)
         if not user:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return error('No users','')
 
         try:
             if user_id:
@@ -111,21 +92,22 @@ class ApartmentView(generics.ListAPIView, APIView, CustomNumberPagination):
     def delete(self, request, id):
         try:
             apartment =get_object_or_404(Apartment, id=id)
-            # self.check_object_permissions(request, apartment)
+            user_id = request.user.id
+            self.check_object_permissions(request, user_id)
             apartment.delete()
             return sucsess(message="Delete sucssesfull")
         except:
             return error("Unable to delete apartment")
 
-
     def put(self, request, id=None):
         try:
             apartment =get_object_or_404(Apartment, id=id)
+
             self.check_object_permissions(request, apartment)
-            serializer = self.serializer_action_classes.get('put')(instance=apartment, data=request.data, partial=True)
+            serializer = self.serializer_action_classes.get('put')(instance=apartment, data=request.data, partial=False)
             if serializer.is_valid():
                 serializer.save()
                 return sucsess("update apartment sucssesful",data=serializer.data)
             return error(data=serializer.errors)
         except:
-            return error("Unable to update apartment")
+            return error("Update apartment fail")

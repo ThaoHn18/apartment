@@ -65,11 +65,9 @@ class CreateApartmentSerializer(serializers.Serializer):
 class UpdateApartmentSerializer(serializers.Serializer):
     manage_id = serializers.CharField(required=True)
     apartment_add = serializers.CharField(required=True)
-    customer_name = serializers.CharField(required=True)
 
     def update(self, instance, validated_data):
         instance.manage_id = validated_data.get('manage_id', instance.manage_id)
         instance.apartment_add = validated_data.get('apartment_add', instance.apartment_add)
-        instance.customer_name = validated_data.get('customer_name', instance.customer_name)
         return instance
 

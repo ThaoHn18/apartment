@@ -1,34 +1,41 @@
 from django.shortcuts import render
 from rest_framework import generics, status, permissions
 from .serializer import RegisrerSerializer, LoginSerializer, LogoutSerializer, ChangePasswordSerializer, GetUserReadOnlySerializer
-from rest_framework.response import Response
+
+
 from  rest_framework_simplejwt.tokens import RefreshToken
 from .models import User
-from .utils import Util
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-from rest_framework.exceptions import APIException
+
 from .mixins import GetSerializerClassMixin
+from apartment.message import sucsess,error
 
 # Create your views here.
 class RegisterView(generics.GenericAPIView):
     serializer_class = RegisrerSerializer
     def post(self, request):
         user = request.data
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response({"result": serializer.data,  "message": True }, status=status.HTTP_201_CREATED)
+        try:
+            serializer = self.serializer_class(data=user)
+            if serializer.is_valid():
+                serializer.save()
+                return sucsess(data=serializer.data)
+            return error(data=serializer.errors)
+        except:
+            return error()
 
 
 class LoginAPIView(generics.GenericAPIView):
     serializer_class = LoginSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response({"result": serializer.data,  "message": True }, status=status.HTTP_200_OK)
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                return sucsess(data=serializer.data)
+            return error(data=serializer.errors)
+        except:
+            return error("Sign in failed", data='')
+
 
 
 class LogoutAPIView(generics.GenericAPIView):
@@ -36,11 +43,14 @@ class LogoutAPIView(generics.GenericAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response({"Message": "Logout Succsesful"}, status=status.HTTP_204_NO_CONTENT)
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return sucsess("Logout success",'')
+            return error(data=serializer.errors)
+        except:
+            return error("Sign out failed", data='')
 
 
 class Change_passwordAPIview(generics.GenericAPIView, GetSerializerClassMixin):
@@ -49,34 +59,21 @@ class Change_passwordAPIview(generics.GenericAPIView, GetSerializerClassMixin):
 
     permission_classes =[permissions.IsAuthenticated]
 
-    serializer_action_classes = {
-        # "list": UserReadOnlySerializer,
-        # "retrieve": UserReadOnlySerializer,
-    }
-
-    # permission_classes_by_action = {
-    #     'list': [IsAdminUser],
-    #     "post": [IsAuthenticated],
-    #     "update_status_meeting": [AllowAny],
-    # }
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = request.user
-        if not user.check_password(serializer.validated_data["old_password"]):
-            raise APIException(_("Old password is wrong."))
-        user.set_password(serializer.validated_data["new_password"])
-        user.save()
-        serializer = GetUserReadOnlySerializer(user)
-        return Response({"result": serializer.data,  "message": True }, status=status.HTTP_200_OK)
+        try:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                user = request.user
+                if not user.check_password(serializer.validated_data["old_password"]):
+                    return error('old password is not correct','')
+                user.set_password(serializer.validated_data["new_password"])
+                user.save()
+                serializer = GetUserReadOnlySerializer(user)
+                return sucsess(data=serializer.data)
+            return error(data=serializer.errors)
+        except:
+            return error("Change password failed", data='')
 
 
 
-    # def get_permissions(self):
-    #     try:
-    #         # return permission_classes depending on `action`
-    #         return [permission() for permission in self.permission_classes_by_action[self.action]]
-    #     except KeyError:
-    #         # action is not set return default permission_classes
-    #         return [permission() for permission in self.permission_classes]
