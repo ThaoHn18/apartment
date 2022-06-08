@@ -71,3 +71,7 @@ class User(AbstractBaseUser,PermissionsMixin):
     @property
     def is_roler5(self):
         return self.roler == "roler5"
+
+    @property
+    def is_roler3(self):
+        return self.roler == "roler3"

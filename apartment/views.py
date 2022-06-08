@@ -15,16 +15,16 @@ from rest_framework import generics
 from rest_framework import filters
 from rest_framework import permissions
 from .message import error,sucsess
-from expenses.permissions import IsOwner,Roler1_5, Roler5,Roler2
+from expenses.permissions import IsOwner, Roler5,Roler2,Roler3
 from authentication.models import User
 
 
 # Modelviewset
-class ApartmentViewSet(viewsets.ModelViewSet):
+class ApartmentViewSet(viewsets.ModelViewSet,):
     queryset = Apartment.objects.all()
     serializer_class = ApartmentSerializer
     pagination_class = CustomNumberPagination
-    permission_classes = [permissions.IsAuthenticated, Roler1_5]
+    permission_classes = [permissions.IsAuthenticated]
 
 
 class ApartmentView(generics.ListAPIView, APIView, CustomNumberPagination):
@@ -37,7 +37,7 @@ class ApartmentView(generics.ListAPIView, APIView, CustomNumberPagination):
         "list": ApartmentSerializer,
         "put": UpdateApartmentSerializer,
     }
-    permission_classes = [permissions.IsAuthenticated , Roler1_5]
+    permission_classes = [permissions.IsAuthenticated , Roler3]
 
     filter_backends = [DjangoFilterBackend , filters.OrderingFilter, filters.SearchFilter]
     search_fields = ['manage_id', 'apartment_add', 'customer_name']
@@ -64,7 +64,7 @@ class ApartmentView(generics.ListAPIView, APIView, CustomNumberPagination):
             serializer = self.get_serializer(queryset, many=True)
             return sucsess(data=serializer.data)
         except:
-            return error(data=serializer.errors)
+            return error("Get apartment fail")
 
     def post(self, request):
 

@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'authentication',
     'expenses',
     'apartment',
+    'company',
     'drf_yasg',
     'rest_framework_simplejwt.token_blacklist',
     'django_filters',

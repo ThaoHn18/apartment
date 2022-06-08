@@ -542,6 +542,117 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "list company",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "create company",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"staff_limit_num\": 1000,\r\n  \"staff_current_num\": 10,\r\n  \"del_flg\": true,\r\n  \"exclusive_fg\": true,\r\n  \"created_company_cd\": 1,\r\n  \"updated_company_cd\": 1\r\n\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/company/company/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"company",
+						"company",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "retrieve company",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "delete company",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "update company",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjU0NjgwMDQyLCJpYXQiOjE2NTQ2NzY3NDIsImp0aSI6IjdjNWRlYjBiNDJmZTQ3NWRiNDQwZTBjMzFlYWRjYTZhIiwidXNlcl9pZCI6MTV9.4K8cmYAeFhkxJdInKECS1o4lpK9UHYUs-hzFwexGdi4",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"company_name\": \"Tang Tang\",\r\n  \"address_company\": \"Nam Dinh\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/company/company/1/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"company",
+						"company",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
 		}
 	]
 }
