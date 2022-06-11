@@ -1,8 +1,6 @@
-from django.db import models
-
 # Create your models here.
 from django.db import models
-from authentication.models import User
+from authentication.models.users import User
 
 class Apartment(models.Model):
     id = models.BigAutoField(primary_key=True, unique=True)

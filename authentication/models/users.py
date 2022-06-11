@@ -8,6 +8,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin)
 
+from .Role import Role
+
 class UserManager(BaseUserManager):
 
     def create_user(self, username, email, password=None):
@@ -35,19 +37,18 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser,PermissionsMixin):
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
-    ROLER_CHOISE = (
-        ("roler1", "Contractor management"),
-        ('roler2', "General contractor"),
-        ("roler3", "Group management"),
-        ("roler4", "Group in general"),
-        ("roler5", "User" )
+
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="users",
     )
-    roler = models.CharField(max_length=30, choices=ROLER_CHOISE, default="roler5")
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -64,14 +65,14 @@ class User(AbstractBaseUser,PermissionsMixin):
             'access': str(refresh.access_token)
         }
 
-    @property
-    def is_roler1(self):
-        return self.roler== "roler1"
-
-    @property
-    def is_roler5(self):
-        return self.roler == "roler5"
-
-    @property
-    def is_roler3(self):
-        return self.roler == "roler3"
+    # @property
+    # def is_roler1(self):
+    #     return self.roler== "roler1"
+    #
+    # @property
+    # def is_roler5(self):
+    #     return self.roler == "roler5"
+    #
+    # @property
+    # def is_roler3(self):
+    #     return self.roler == "roler3"

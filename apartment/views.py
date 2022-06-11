@@ -1,12 +1,9 @@
-from django.shortcuts import render
-
 # Create your views here.
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from .models import Apartment
-from .serializers import ApartmentSerializer, CreateApartmentSerializer, UpdateApartmentSerializer
-from django.db.models import Q
+from .serializers import ApartmentSerializer, UpdateApartmentSerializer
 from .pagination import CustomNumberPagination
 #Them
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,8 +12,8 @@ from rest_framework import generics
 from rest_framework import filters
 from rest_framework import permissions
 from .message import error,sucsess
-from expenses.permissions import IsOwner, Roler5,Roler2,Roler3
-from authentication.models import User
+from expenses.permissions import Roler3
+from authentication.models.users import User
 
 
 # Modelviewset

@@ -1,7 +1,16 @@
 
-from django.urls import path
-from .views import RegisterView, LoginAPIView, LogoutAPIView, Change_passwordAPIview
+from django.urls import path,include
+from .views.users import RegisterView, LoginAPIView, LogoutAPIView, Change_passwordAPIview
+from .views.role import RoleViewSet
+
+
 from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework import routers
+from . import views
+
+router = routers.DefaultRouter()
+router.register("role", views.RoleViewSet, "role")
+router.register("permisssion", views.PermissionsViewSet, "permisssion")
 
 
 urlpatterns = [
@@ -11,4 +20,5 @@ urlpatterns = [
     path('logout/', LogoutAPIView.as_view(), name='logout'),
     path('change-password/', Change_passwordAPIview.as_view(), name='change-password'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('', include(router.urls)),
 ]

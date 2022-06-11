@@ -1,12 +1,7 @@
-from django.shortcuts import render
-from rest_framework import generics, status, permissions
-from .serializer import RegisrerSerializer, LoginSerializer, LogoutSerializer, ChangePasswordSerializer, GetUserReadOnlySerializer
+from rest_framework import generics, permissions
+from authentication.serializers.users import RegisrerSerializer, LoginSerializer, LogoutSerializer, ChangePasswordSerializer, GetUserReadOnlySerializer
 
-
-from  rest_framework_simplejwt.tokens import RefreshToken
-from .models import User
-
-from .mixins import GetSerializerClassMixin
+from authentication.mixins import GetSerializerClassMixin
 from apartment.message import sucsess,error
 
 # Create your views here.
